@@ -10,14 +10,12 @@ clear
 
 # AK Kernel Version
 BASE_AK_VER="AK"
-VER=".070.XGENESIS.MAKO"
+VER=".085.XGENESIS.MAKO"
 AK_VER=$BASE_AK_VER$VER
 
 # AK Variables
 export LOCALVERSION="~"`echo $AK_VER`
-export CROSS_COMPILE=${HOME}/android/AK-linaro/4.8.3-2014.02.20140217.CR83/bin/arm-cortex_a15-linux-gnueabihf-
-#export CROSS_COMPILE=${HOME}/android/AK-linaro/4.7.4-2014.01.20140206.CR83/bin/arm-cortex_a15-linux-gnueabihf-
-#export CROSS_COMPILE=${HOME}/android/AK-linaro/4.7.3-2013.04.20130415/bin/arm-linux-gnueabihf-
+export CROSS_COMPILE=${HOME}/android/AK-linaro/4.8.3-2014.03.20140318.CR83/bin/arm-cortex_a15-linux-gnueabihf-
 export ARCH=arm
 export SUBARCH=arm
 export KBUILD_BUILD_USER=ak
@@ -48,7 +46,7 @@ KERNEL_DIR=`pwd`
 OUTPUT_DIR=${HOME}/android/AK-anykernel/zip
 CWM_DIR=${HOME}/android/AK-anykernel/cwm
 ZIMAGE_DIR=${HOME}/android/AK-xGenesis/arch/arm/boot
-CWM_MOVE=/home/anarkia1976/Desktop/AK-Kernel
+CWM_MOVE=${HOME}/android/AK-releases
 ZIMAGE_ANYKERNEL=${HOME}/android/AK-anykernel/cwm/kernel
 ANYKERNEL_DIR=${HOME}/android/AK-anykernel
 KCONTROL_GPU=${HOME}/android/kcontrol_gpu_msm
