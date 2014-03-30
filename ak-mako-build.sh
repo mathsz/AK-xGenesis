@@ -72,7 +72,7 @@ echo -e "${restore}"
 
 make "ak_mako_defconfig"
 #make -j3 > /dev/null
-make -j3
+make -j8
 
 echo -e "${green}"
 echo "--------------------------"
