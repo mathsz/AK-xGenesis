@@ -2341,6 +2341,8 @@ static void touch_late_resume(struct early_suspend *h)
 #ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
 #if defined(CONFIG_TOUCHSCREEN_SWEEP2WAKE) || defined(CONFIG_TOUCHSCREEN_DOUBLETAP2WAKE)
         bool prevent_sleep = false;
+	int int_pin = 0;
+	int next_work = 0;
 #endif
 #if defined(CONFIG_TOUCHSCREEN_SWEEP2WAKE)
         prevent_sleep = (s2w_switch > 0) && (s2w_s2sonly == 0);
@@ -2385,6 +2387,24 @@ static void touch_late_resume(struct early_suspend *h)
 #ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
 	} else {
 		prevent_sleep_disable_irq_wake(ts->client->irq);
+		/* Interrupt pin check after IC init - avoid Touch lockup */
+		if (ts->pdata->role->operation_mode == INTERRUPT_MODE) {
+			int_pin = gpio_get_value(ts->pdata->int_pin);
+			next_work = atomic_read(&ts->next_work);
+
+			if (unlikely(int_pin != 1 && next_work <= 0)) {
+				TOUCH_INFO_MSG("WARN: [2w]Interrupt pin is low (Lockup detected) - next_work: %d, try_count: %d]\n",
+						next_work, ts->ic_init_err_cnt);
+				pr_warn("touch core: [2w]disable irqs!\n");
+				disable_irq(ts->client->irq);
+				pr_warn("touch core: [2w]release all Touch events!\n");
+				release_all_ts_event(ts);
+				pr_warn("touch core: [s2w]enable irqs!\n");
+				enable_irq(ts->client->irq);
+				pr_warn("touch core: [s2w]force IC init!\n");
+				touch_ic_init(ts);
+				}
+			}
 		if (s2w_error) {
 			s2w_error = false;
 			TOUCH_ERR_MSG("soft resetting device\n");
@@ -2446,7 +2466,7 @@ int touch_driver_register(struct touch_device_driver* driver)
 
 	touch_device_func = driver;
 
-	touch_wq = create_workqueue("touch_wq");
+	touch_wq = create_singlethread_workqueue("touch_wq");
 	if (!touch_wq) {
 		TOUCH_ERR_MSG("CANNOT create new workqueue\n");
 		ret = -ENOMEM;
